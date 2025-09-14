@@ -1,0 +1,18 @@
+[user]
+	name = Travenedu
+	email = 82552048+Travenedu@users.noreply.github.com
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[core]
+	autocrlf = input
+
+[alias]
+	co = checkout
+	ci = commit
+	st = status
+	rcon = rebase --continue
+	lo = log --oneline
+	lm = log main..
