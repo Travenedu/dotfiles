@@ -10,11 +10,11 @@ config.font = wezterm.font("JetBrainsMono Nerd Font")
 config.colors = {
   cursor_bg = "white",
   cursor_border = "white",
+  background = "#1E1E1E",
 }
 
 -- Appearances
 config.window_decorations = "RESIZE | MACOS_FORCE_SQUARE_CORNERS"
-config.color_scheme = "Catppuccin Mocha"
 config.hide_tab_bar_if_only_one_tab = true
 config.window_padding = {
   left = 0,
