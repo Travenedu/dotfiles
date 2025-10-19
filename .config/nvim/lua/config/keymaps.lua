@@ -14,6 +14,12 @@ vim.g.mapleader = " "
 -- save file
 map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", "Save File")
 
+-- Move to start of line
+vim.keymap.set('n', '<leader>hh', '^', { noremap = true, silent = true, desc = 'Go to start of line' })
+
+-- Move to end of line
+vim.keymap.set('n', '<leader>ll', '$', { noremap = true, silent = true, desc = 'Go to end of line' })
+
 -- repeat last macro
 map("n", "Q", "@@", "Repeat last macro")
 
