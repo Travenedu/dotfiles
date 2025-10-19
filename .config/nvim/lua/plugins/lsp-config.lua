@@ -216,17 +216,3 @@ return {
   end,
 }
 
--- vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Show documentation (hover)" })
--- vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
--- vim.keymap.set({ "n", "v" }, "<leader>la", vim.lsp.buf.code_action, { desc = "Show code actions" })
--- require("mason-lspconfig").setup({
---       ensure_installed = {
---         "lua_ls",
---         "clangd",
---         "dockerls",
---         "pylsp",
---         "docker_compose_language_service",
---       },
---     })
---   end,
--- },
