@@ -9,18 +9,10 @@ return {
     { "j-hui/fidget.nvim",       opts = {} },
   },
   config = function()
-    --  This function gets run when an LSP attaches to a particular buffer.
-    --    That is to say, every time a new file is opened that is associated with
-    --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
-    --    function will be executed to configure the current buffer
     vim.api.nvim_create_autocmd("LspAttach", {
       group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
       callback = function(event)
-        -- NOTE: Remember that Lua is a real programming language, and as such it is possible
-        -- to define small helper and utility functions so you don't have to repeat yourself.
-        --
-        -- In this case, we create a function that lets us more easily define mappings specific
-        -- for LSP related items. It sets the mode, buffer and description for us each time.
+
         local map = function(keys, func, desc, mode)
           mode = mode or "n"
           vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
@@ -63,7 +55,6 @@ return {
         --  For example, in C this would take you to the header.
         map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
-        -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
         ---@param client vim.lsp.Client
         ---@param method vim.lsp.protocol.Method
         ---@param bufnr? integer some lsp support methods only in specific files
@@ -112,8 +103,6 @@ return {
           })
         end
 
-        -- The following code creates a keymap to toggle inlay hints in your
-        -- code, if the language server you are using supports them
         if
             client
             and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf)
@@ -154,17 +143,11 @@ return {
       },
     })
 
-    -- LSP servers and clients are able to communicate to each other what features they support.
-    --  By default, Neovim doesn't support everything that is in the LSP specification.
-    --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
-    --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
     local original_capabilities = vim.lsp.protocol.make_client_capabilities()
     local capabilities = require("blink.cmp").get_lsp_capabilities(original_capabilities)
     capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
     -- Enable the following language servers
-    --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
-    --
     --  Add any additional override configuration in the following tables. Available keys are:
     --  - cmd (table): Override the default command used to start the server
     --  - filetypes (table): Override the default list of associated filetypes for the server
@@ -179,28 +162,19 @@ return {
       pyright = {},
     }
 
-    -- Ensure the servers and tools above are installed
-    --
-    -- To check the current status of installed tools and/or manually install
-    -- other tools, you can run
-    --    :Mason
-    --
-    -- You can press `g?` for help in this menu.
-    --
-    -- `mason` had to be setup earlier: to configure its options see the
-    -- `dependencies` table for `nvim-lspconfig` above.
-    --
-    -- You can add other tools here that you want Mason to install
-    -- for you, so that they are available from within Neovim.
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
-      "stylua",          -- Used to format Lua code
-      "prettierd",       -- Used to format javascript and typescript code
+      "stylua", -- Used to format Lua code
+      "prettierd",
+      "clang-format",
+      "markdownlint",
+      "markdownlint-cli2",
+      "mdformat",
     })
     require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
     require("mason-lspconfig").setup({
-      ensure_installed = {},       -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
+      ensure_installed = {},
       automatic_installation = false,
       handlers = {
         function(server_name)
