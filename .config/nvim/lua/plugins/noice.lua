@@ -2,15 +2,30 @@ return {
   {
     "folke/noice.nvim",
     event = "VeryLazy",
-    opts = {
-      -- add any options here
-    },
     dependencies = {
       "MunifTanjim/nui.nvim",
-      -- OPTIONAL:
-      --   `nvim-notify` is only needed, if you want to use the notification view.
-      --   If not available, we use `mini` as the fallback
       "rcarriga/nvim-notify",
-      }
+    },
+
+    opts = {
+      cmdline = {
+        view = "cmdline_popup",
+      },
+      views = {
+        cmdline_popup = {
+          position = {
+            row = -3,      -- move 3 lines above bottom
+            col = "50%",   -- center horizontally
+          },
+          size = {
+            width = 60,
+            height = "auto",
+          },
+          border = {
+            style = "rounded",
+          },
+        },
+      },
+    },
   }
 }
