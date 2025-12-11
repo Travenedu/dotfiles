@@ -8,14 +8,14 @@ return {
 
       -- Header Section
       local logo = [[
- ██████   █████              ███                 
-░░██████ ░░███              ░░░                  
- ░███░███ ░███  █████ █████ ████  █████████████  
- ░███░░███░███ ░░███ ░░███ ░░███ ░░███░░███░░███ 
- ░███ ░░██████  ░███  ░███  ░███  ░███ ░███ ░███ 
- ░███  ░░█████  ░░███ ███   ░███  ░███ ░███ ░███ 
+ ██████   █████              ███
+░░██████ ░░███              ░░░
+ ░███░███ ░███  █████ █████ ████  █████████████
+ ░███░░███░███ ░░███ ░░███ ░░███ ░░███░░███░░███
+ ░███ ░░██████  ░███  ░███  ░███  ░███ ░███ ░███
+ ░███  ░░█████  ░░███ ███   ░███  ░███ ░███ ░███
  █████  ░░█████  ░░█████    █████ █████░███ █████
-░░░░░    ░░░░░    ░░░░░    ░░░░░ ░░░░░ ░░░ ░░░░░ 
+░░░░░    ░░░░░    ░░░░░    ░░░░░ ░░░░░ ░░░ ░░░░░
 
                             Code by Traven Reese
   ]]
@@ -24,10 +24,10 @@ return {
 
       -- Buttons Section
       dashboard_theme.section.buttons.val = {
-        dashboard_theme.button("<leader> ff", " Find file", "<cmd>Telescope find_files <CR>"),
-        dashboard_theme.button("<leader> fg", " Find text", "<cmd>Telescope live_grep <CR>"),
-        dashboard_theme.button("<leader> fg", " Find Project", "<cmd>Telescope project <CR>"),
-        dashboard_theme.button("<leader> fo", " Recent files", "<cmd>Telescope oldfiles <CR>"),
+        dashboard_theme.button("<leader> ff", " Find file", function() Snacks.picker.files() end),
+        dashboard_theme.button("<leader> fg", " Find text", function() Snacks.picker.grep() end),
+        dashboard_theme.button("<leader> fp", " Find Project", function() Snacks.picker.projects() end),
+        dashboard_theme.button("<leader> fo", " Recent files", function() Snacks.picker.recent() end),
         dashboard_theme.button(
           "<leader> ql",
           " Load Last Session",
@@ -35,7 +35,6 @@ return {
         ),
         dashboard_theme.button("n", " New file", "<cmd>ene <BAR> startinsert <CR>"),
         dashboard_theme.button("<leader> qq", " Close", "<cmd>q <CR>"),
-        
         dashboard_theme.button(
           "<leader> cn",
           " Config",
@@ -49,11 +48,11 @@ return {
 
       -- Layout
       dashboard_theme.opts.layout = {
-        { type = "padding", val = 4 }, -- Upper margin
+        { type = "padding", val = 4 },
         dashboard_theme.section.header,
-        { type = "padding", val = 2 }, -- Space between logo and buttons
+        { type = "padding", val = 2 },
         dashboard_theme.section.buttons,
-        { type = "padding", val = 1 }, -- Space between buttons and recent files
+        { type = "padding", val = 1 },
         dashboard_theme.section.footer,
       }
 
