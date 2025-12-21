@@ -39,6 +39,8 @@ return {
       { '<leader>s"',      function() Snacks.picker.registers() end,                               desc = "Registers" },
       { "<leader>sl",      function() Snacks.picker.lines() end,                                   desc = "Search Lines" },
       { "<leader>sd",      function() Snacks.picker.diagnostics_buffer() end,                      desc = "Buffer Diagnostics" },
+
+      { "<leader>sc",      function() Snacks.picker.commands() end,                                desc = "Search Commands" },
       { "<leader>sh",      function() Snacks.picker.help({ layout = { position = "right" }}) end,                                    desc = "Help Pages" },
       { "<leader>si",      function() Snacks.picker.icons() end,                                   desc = "Icons" },
       { "<leader>sk",      function() Snacks.picker.keymaps() end,                                 desc = "Keymaps" },
@@ -61,13 +63,12 @@ return {
       -- File
       { "<leader>Fr",      function() Snacks.rename.rename_file() end,                             desc = "Rename File" },
       -- Other
-      { "<leader>tz",      function() Snacks.zen() end,                                            desc = "Toggle Zen Mode" },
+      { "<leader>Tz",      function() Snacks.zen() end,                                            desc = "Toggle Zen Mode" },
       { "<leader>CC",      function() Snacks.picker.colorschemes() end,                            desc = "Colorschemes" },
       { "<leader>TZ",      function() Snacks.zen.zoom() end,                                       desc = "Toggle Zoom" },
       { "<leader>n",       function() Snacks.notifier.show_history() end,                          desc = "Notification History" },
       { "<leader>bd",      function() Snacks.bufdelete() end,                                      desc = "Delete Buffer" },
       { "<leader>GB",      function() Snacks.gitbrowse() end,                                      desc = "Git Browse",               mode = { "n", "v" } },
-      { "<leader>GG",      function() Snacks.lazygit() end,                                        desc = "Lazygit" },
       { "]]",              function() Snacks.words.jump(vim.v.count1) end,                         desc = "Next Reference",           mode = { "n", "t" } },
       { "[[",              function() Snacks.words.jump(-vim.v.count1) end,                        desc = "Prev Reference",           mode = { "n", "t" } },
     },

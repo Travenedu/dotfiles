@@ -1,5 +1,5 @@
 -- First, load the module you created in lua/utils/pickers.lua
-local picker_utils = require('utils.terminal.picker')
+-- local picker_utils = require('utils.terminal.picker')
 
 local function map(mode, keys, action, desc, opts)
   local defaults = {
@@ -53,9 +53,6 @@ map("n", "<leader><tab>[", "<cmd>tabprevious<cr>", "Previous Tab")
 
 -- Messages
 map("n", "<leader>nd", "<cmd>NoiceDismiss<CR>", "Dismiss Messages")
-
--- Terminal
-map('n', '<leader>ft', picker_utils.terminal_buffers_picker, 'Find Terminal Buffers')
 
 -- yanking and pasting
 map("v", "<leader>yy", [["+y]], "Yank to clipboard")
