@@ -1,5 +1,4 @@
 require("config")
-require("utils.terminal.terminal")
 
 if vim.g.neovide then
   vim.o.guifont = "Input Mono,Symbols Nerd Font Mono:h12"
