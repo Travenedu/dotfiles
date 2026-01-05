@@ -39,7 +39,6 @@ return {
       { '<leader>s"',      function() Snacks.picker.registers() end,                               desc = "Registers" },
       { "<leader>sl",      function() Snacks.picker.lines() end,                                   desc = "Search Lines" },
       { "<leader>sd",      function() Snacks.picker.diagnostics_buffer() end,                      desc = "Buffer Diagnostics" },
-
       { "<leader>sc",      function() Snacks.picker.commands() end,                                desc = "Search Commands" },
       { "<leader>sh",      function() Snacks.picker.help({ layout = { position = "right" }}) end,                                    desc = "Help Pages" },
       { "<leader>si",      function() Snacks.picker.icons() end,                                   desc = "Icons" },
@@ -60,8 +59,6 @@ return {
       { "gai", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming" },
       { "gao", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing" },
       { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
-      -- File
-      { "<leader>Fr",      function() Snacks.rename.rename_file() end,                             desc = "Rename File" },
       -- Other
       { "<leader>Tz",      function() Snacks.zen() end,                                            desc = "Toggle Zen Mode" },
       { "<leader>CC",      function() Snacks.picker.colorschemes() end,                            desc = "Colorschemes" },

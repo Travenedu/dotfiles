@@ -20,6 +20,7 @@ return {
 			{ "<leader>T", group = "Toggles" },
 			{ "<leader>w", group = "Windows" },
 			{ "<leader>y", group = "Yank (MD)" },
+			{ "z", group = "Folds" },
 			{ "S", mode = "v", desc = "Add surround visual" },
 		},
 		plugins = {
