@@ -73,9 +73,8 @@ return {
 			vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], opts("Move Up"))
 			vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], opts("Move Right"))
 
-			-- Escape Logic (Now you only need these if you want to stay in the term window)
-			vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], opts("Normal Mode"))
-			vim.keymap.set("t", "jk", [[<C-\><C-n>]], opts("Normal Mode"))
+			-- Escape Logic
+			vim.keymap.set("t", "//", [[<C-\><C-n>]], opts("Normal Mode"))
 
 			-- Management
 			vim.keymap.set("t", "<C-q>", [[<C-\><C-n><Cmd>close<CR>]], opts("Hide Terminal"))
@@ -88,6 +87,7 @@ return {
 				vim.cmd("bdelete! " .. current_buf)
 			end, opts("Kill Terminal"))
 		end
+
 		vim.cmd("autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()")
 		-- When entering a terminal buffer, automatically switch to insert mode
 		vim.cmd("autocmd! BufEnter term://*toggleterm#* startinsert")
@@ -257,11 +257,15 @@ return {
 				display_name = name,
 				hidden = true,
 				direction = "float",
+				-- ADD THIS:
+				terminal_mappings = false,
 				on_open = function(term)
+					-- We want ONLY 'q' or a specific command to close these,
+					-- not the standard terminal navigation/escape keys.
 					vim.cmd("startinsert!")
 					vim.api.nvim_buf_set_keymap(
 						term.bufnr,
-						"n",
+						"t", -- Use 't' mode so it works while you are "inside" the TUI
 						"q",
 						"<cmd>close<CR>",
 						{ noremap = true, silent = true }
