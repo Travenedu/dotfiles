@@ -1,3 +1,5 @@
+local lsp_utils = require("utils.lsp")
+
 local function map(mode, keys, action, desc, opts)
 	local defaults = { desc = desc or "", noremap = true, silent = true }
 	local merged = vim.tbl_extend("force", defaults, opts or {})
@@ -20,10 +22,10 @@ map("n", "n", "nzzzv", "Next Search Result (Centered)")
 map("n", "N", "Nzzzv", "Prev Search Result (Centered)")
 
 -- Split Navigation (Alt + hjkl to move between windows)
-map("n", "<A-h>", "<C-w>h", "Navigate Left")
-map("n", "<A-j>", "<C-w>j", "Navigate Down")
-map("n", "<A-k>", "<C-w>k", "Navigate Up")
-map("n", "<A-l>", "<C-w>l", "Navigate Right")
+map("n", "<A-H>", "<C-w>h", "Navigate Left")
+map("n", "<A-J>", "<C-w>j", "Navigate Down")
+map("n", "<A-K>", "<C-w>k", "Navigate Up")
+map("n", "<A-L>", "<C-w>l", "Navigate Right")
 
 -- Better manual indenting (gv keeps the selection active)
 map("v", "<", "<gv", "Indent Left")
@@ -34,7 +36,7 @@ map("n", "Q", "@@", "Repeat last macro")
 
 -- Window Management (Fixed Duplicates)
 map("n", "<leader>wv", "<C-w>v", "Split Vertical")
-map("n", "<leader>ws", "<C-w>s", "Split Horizontal") -- Changed from wh to ws
+map("n", "<leader>wh", "<C-w>s", "Split Horizontal")
 map("n", "<leader>we", "<C-w>=", "Equal Size Splits")
 map("n", "<leader>wx", "<cmd>close<CR>", "Close Split")
 
@@ -44,11 +46,11 @@ map("n", "<leader>wJ", "<C-w>J", "Move Split Down")
 map("n", "<leader>wK", "<C-w>K", "Move Split Up")
 map("n", "<leader>wL", "<C-w>L", "Move Split Right")
 
--- Tabs (Cleaned up prefix)
-map("n", "<leader>tn", "<cmd>tabnew<cr>", "New Tab")
-map("n", "<leader>t]", "<cmd>tabnext<cr>", "Next Tab")
-map("n", "<leader>t[", "<cmd>tabprevious<cr>", "Prev Tab")
-map("n", "<leader>tx", "<cmd>tabclose<cr>", "Close Tab")
+-- Tabs
+map("n", "<leader><tab>n", "<cmd>tabnew<cr>", "New Tab")
+map("n", "<leader><tab>]", "<cmd>tabnext<cr>", "Next Tab")
+map("n", "<leader><tab>[", "<cmd>tabprevious<cr>", "Prev Tab")
+map("n", "<leader><tab>x", "<cmd>tabclose<cr>", "Close Tab")
 
 -- Yanking and Pasting
 map("v", "<leader>y", [["+y]], "Yank to clipboard")
@@ -79,3 +81,7 @@ end, "Yank selection as MD")
 
 -- Dismiss Messages
 map("n", "<leader>nd", "<cmd>NoiceDismiss<CR>", "Dismiss Messages")
+
+-- lsp
+vim.keymap.set("n", "<leader>cd", lsp_utils.copy_diagnostic, { desc = "Copy Diagnostic" })
+-- vim.keymap.set("n", "gs", lsp_utils.toggle_hover_vertical, { desc = "Toggle Vertical Docs" })
