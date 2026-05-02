@@ -38,26 +38,14 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 -- 4. Close some filetypes with <q>
 vim.api.nvim_create_autocmd("FileType", {
 	group = augroup("close_with_q"),
-	pattern = { "help", "man", "qf", "lspinfo", "checkhealth", "notify" },
+	pattern = { "help", "man", "qf", "lspinfo", "checkhealth", "notify", "lazy", "gitsigns.blame", "neotest-output" },
 	callback = function(event)
 		vim.bo[event.buf].buflisted = false
 		vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
 	end,
 })
 
--- 5. Auto-detect Bash for extensionless files
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-	group = augroup("bash_detect"),
-	pattern = "*",
-	callback = function()
-		if vim.bo.filetype == "" or vim.bo.filetype == "text" then
-			local line = vim.api.nvim_buf_get_lines(0, 0, 1, false)[1] or ""
-			if line:match("^#!.*bin/bash") or line:match("^#!.*env%s+bash") then
-				vim.bo.filetype = "sh"
-			end
-		end
-	end,
-})
+
 
 -- 6. Trim trailing whitespace on save
 vim.api.nvim_create_autocmd("BufWritePre", {
@@ -65,7 +53,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 	pattern = "*",
 	callback = function()
 		local save = vim.fn.winsaveview()
-		vim.cmd([[%s/\s\+$//e]])
+		vim.cmd([[keeppatterns %s/\s\+$//e]])
 		vim.fn.winrestview(save)
 	end,
 })
@@ -73,5 +61,48 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 -- 7. Check if we need to reload the file when it changed on disk
 vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 	group = augroup("checktime"),
-	command = "checktime",
+	callback = function()
+		if vim.o.buftype ~= "nofile" then
+			vim.cmd("checktime")
+		end
+	end,
+})
+
+-- 8. Auto-create missing directories on save
+vim.api.nvim_create_autocmd("BufWritePre", {
+	group = augroup("auto_create_dir"),
+	callback = function(event)
+		if event.match:match("^%w%w+:[\\/][\\/]") then
+			return
+		end
+		local file = vim.uv.fs_realpath(event.match) or event.match
+		vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
+	end,
+})
+
+-- 9. Enable wrap and spell for text-based files
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup("wrap_spell"),
+	pattern = { "gitcommit", "markdown", "text", "plaintex" },
+	callback = function()
+		vim.opt_local.wrap = true
+		vim.opt_local.spell = true
+	end,
+})
+
+-- 10. Show cursor line only in active window
+local cursor_grp = augroup("CursorLine")
+vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+	group = cursor_grp,
+	pattern = "*",
+	callback = function()
+		vim.opt_local.cursorline = true
+	end,
+})
+vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
+	group = cursor_grp,
+	pattern = "*",
+	callback = function()
+		vim.opt_local.cursorline = false
+	end,
 })
