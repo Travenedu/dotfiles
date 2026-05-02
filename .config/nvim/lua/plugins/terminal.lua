@@ -33,18 +33,18 @@ return {
 			},
 		})
 
-		local function kill_current_terminal()
-			local current_buf = vim.api.nvim_get_current_buf()
-			local all_terms = terminal.get_all()
-			local target_term = nil
-
-			-- Find the terminal associated with the current buffer
-			for _, t in ipairs(all_terms) do
-				if t.bufnr == current_buf then
-					target_term = t
-					break
+		local function get_term_for_buf(bufnr)
+			for _, t in ipairs(terminal.get_all()) do
+				if t.bufnr == bufnr then
+					return t
 				end
 			end
+			return nil
+		end
+
+		local function kill_current_terminal()
+			local current_buf = vim.api.nvim_get_current_buf()
+			local target_term = get_term_for_buf(current_buf)
 
 			if not target_term then
 				return vim.notify("No active terminal found in this buffer", vim.log.levels.WARN)
@@ -81,11 +81,11 @@ return {
 			vim.keymap.set("t", "<C-x>", kill_current_terminal, opts("Kill Terminal (with prompt)"))
 
 			-- Force Kill: Stops process and deletes buffer
-			vim.keymap.set("t", "<C-x>", function()
+			vim.keymap.set("t", "<M-x>", function()
 				vim.cmd("stopinsert")
 				local current_buf = vim.api.nvim_get_current_buf()
 				vim.cmd("bdelete! " .. current_buf)
-			end, opts("Kill Terminal"))
+			end, opts("Force Kill Terminal"))
 		end
 
 		vim.cmd("autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()")
@@ -95,7 +95,7 @@ return {
 		-- 2. RUN CURRENT FILE LOGIC
 		local function run_current_file()
 			local ft = vim.bo.filetype
-			local filename = '"' .. vim.fn.expand("%:p") .. '"'
+			local filename = vim.fn.shellescape(vim.fn.expand("%:p"))
 			local commands = {
 				python = "python3 " .. filename,
 				javascript = "node " .. filename,
@@ -119,8 +119,28 @@ return {
 			return git_dir ~= "" and vim.fn.fnamemodify(git_dir, ":h") or cwd
 		end
 
+		local function get_inherited_direction()
+			local all_terms = terminal.get_all()
+			local current_buf = vim.api.nvim_get_current_buf()
+			local current_term = get_term_for_buf(current_buf)
+
+			if current_term then
+				return current_term.direction
+			end
+
+			for i = #all_terms, 1, -1 do
+				local t = all_terms[i]
+				if t:is_open() then
+					return t.direction
+				end
+			end
+
+			return "horizontal"
+		end
+
 		local function create_new_terminal(dir)
 			local project_root = get_project_root()
+			local target_dir = dir or get_inherited_direction()
 			vim.ui.input({ prompt = "Terminal Name: " }, function(name)
 				if not name then
 					return
@@ -135,6 +155,9 @@ return {
 					if t.id > max_id then
 						max_id = t.id
 					end
+					if t:is_open() then
+						t:close()
+					end
 				end
 
 				terminal.Terminal
@@ -142,31 +165,12 @@ return {
 						id = max_id + 1,
 						display_name = name,
 						dir = project_root,
-						direction = dir,
+						direction = target_dir,
 					})
 					:toggle()
 			end)
 		end
 
-		local function create_quick_terminal(dir)
-			local project_root = get_project_root()
-			local all_terms = terminal.get_all()
-			local max_id = 0
-			for _, t in ipairs(all_terms) do
-				if t.id > max_id then
-					max_id = t.id
-				end
-			end
-
-			terminal.Terminal
-				:new({
-					id = max_id + 1,
-					display_name = "Quick Term",
-					dir = project_root,
-					direction = dir,
-				})
-				:toggle()
-		end
 
 		local function smart_toggle(dir)
 			local all_terms = terminal.get_all()
@@ -180,15 +184,7 @@ return {
 			-- 2. Find the "active" or last-focused terminal
 			-- ToggleTerm usually tracks the 'current' one via ID or focus
 			local current_buf = vim.api.nvim_get_current_buf()
-			local target_term = nil
-
-			-- Check if we are currently inside a terminal window
-			for _, t in ipairs(all_terms) do
-				if t.bufnr == current_buf then
-					target_term = t
-					break
-				end
-			end
+			local target_term = get_term_for_buf(current_buf)
 
 			-- If we aren't inside a terminal, get the last one that was toggled
 			if not target_term then
@@ -199,20 +195,29 @@ return {
 			if target_term:is_open() and target_term.direction ~= dir then
 				target_term:close() -- Close it in the old layout
 				target_term.direction = dir -- Change its "shape"
-				target_term:open() -- Re-open it in the new layout
+				-- Delay open to prevent disappearing winbar UI glitch
+				vim.schedule(function()
+					vim.cmd(target_term.id .. "ToggleTerm direction=" .. dir)
+				end)
 			else
 				-- Otherwise, just perform a normal toggle
-				vim.cmd("ToggleTerm direction=" .. dir)
+				vim.cmd(target_term.id .. "ToggleTerm direction=" .. dir)
 			end
 		end
 
 		local function cycle_terminal(step)
-			local all_terms = terminal.get_all()
-			if #all_terms <= 1 then
+			local terms = terminal.get_all()
+			if #terms <= 1 then
 				return
 			end
 			local current_buf = vim.api.nvim_get_current_buf()
 			local current_index = 0
+
+			-- Copy the table before sorting so we don't corrupt ToggleTerm's internal state
+			local all_terms = {}
+			for _, t in ipairs(terms) do
+				table.insert(all_terms, t)
+			end
 			table.sort(all_terms, function(a, b)
 				return a.id < b.id
 			end)
@@ -231,22 +236,37 @@ return {
 			end
 			local target_term = all_terms[next_index]
 			if target_term then
-				vim.cmd("ToggleTerm")
-				vim.cmd(target_term.id .. "ToggleTerm")
+				if current_index > 0 then
+					local current_term = all_terms[current_index]
+					-- Only inherit direction if the target isn't already open in a split
+					if not target_term:is_open() then
+						target_term.direction = current_term.direction
+					end
+					current_term:close()
+				else
+					if not target_term:is_open() then
+						target_term.direction = get_inherited_direction()
+					end
+				end
+
+				vim.schedule(function()
+					if not target_term:is_open() then
+						-- Using the native command ensures ToggleTerm registers the position for the winbar
+						vim.cmd(target_term.id .. "ToggleTerm direction=" .. target_term.direction)
+					end
+				end)
 			end
 		end
 
 		local function rename_current_terminal()
 			local current_buf = vim.api.nvim_get_current_buf()
-			for _, t in ipairs(terminal.get_all()) do
-				if t.bufnr == current_buf then
-					vim.ui.input({ prompt = "New Terminal Name: " }, function(input)
-						if input and input ~= "" then
-							t.display_name = input
-						end
-					end)
-					break
-				end
+			local target_term = get_term_for_buf(current_buf)
+			if target_term then
+				vim.ui.input({ prompt = "New Terminal Name: " }, function(input)
+					if input and input ~= "" then
+						target_term.display_name = input
+					end
+				end)
 			end
 		end
 
@@ -265,7 +285,7 @@ return {
 					vim.cmd("startinsert!")
 					vim.api.nvim_buf_set_keymap(
 						term.bufnr,
-						"t", -- Use 't' mode so it works while you are "inside" the TUI
+						"n", -- Changed from 't' to 'n' so it doesn't break typing 'q' inside the TUI
 						"q",
 						"<cmd>close<CR>",
 						{ noremap = true, silent = true }
@@ -278,7 +298,6 @@ return {
 		local lazygit = create_custom_term("lazygit", "Git")
 		local btop = create_custom_term("btop", "System")
 		local python = create_custom_term("python3", "Python")
-		local lazydocker = create_custom_term("lazydocker", "Docker")
 
 		-- Global lualine status function
 		_G.get_term_status = function()
@@ -288,12 +307,11 @@ return {
 			end
 
 			local current_buf = vim.api.nvim_get_current_buf()
+			local current_term = get_term_for_buf(current_buf)
 
 			-- 1. Check if we are currently looking at a terminal buffer
-			for _, t in ipairs(all_terms) do
-				if t.bufnr == current_buf then
-					return string.format("  %d: %s", t.id, t.display_name or "Shell")
-				end
+			if current_term then
+				return string.format("  %d: %s", current_term.id, current_term.display_name or "Shell")
 			end
 
 			-- 2. If we are in a code buffer, show the last active terminal
@@ -315,37 +333,29 @@ return {
 		vim.keymap.set("n", "<space>tr", run_current_file, desc("Run Current File"))
 
 		-- Toggles & Layouts
-		vim.keymap.set({ "n", "t" }, "<space>tt", function()
+		vim.keymap.set("n", "<space>tt", function()
 			smart_toggle("float")
 		end, desc("Toggle Float"))
-		vim.keymap.set({ "n", "t" }, "<space>ts", function()
+		vim.keymap.set("n", "<space>ts", function()
 			smart_toggle("vertical")
 		end, desc("Toggle Vertical"))
-		vim.keymap.set({ "n", "t" }, "<space>tf", function()
+		vim.keymap.set("n", "<space>tf", function()
 			smart_toggle("tab")
 		end, desc("Toggle Tab/Full"))
 
 		-- New Instances (Named & Quick)
 		vim.keymap.set("n", "<space>tn", function()
-			create_new_terminal("float")
-		end, desc("New Named Float"))
-		vim.keymap.set("n", "<space>tN", function()
-			create_new_terminal("horizontal")
-		end, desc("New Named Horizontal"))
-		vim.keymap.set("n", "<space>tq", function()
-			create_quick_terminal("float")
-		end, desc("Quick Float Term"))
-		vim.keymap.set("n", "<space>tQ", function()
-			create_quick_terminal("horizontal")
-		end, desc("Quick Horizontal Term"))
+			create_new_terminal()
+		end, desc("New Named Terminal"))
+
 
 		-- Management
 		vim.keymap.set("n", "<leader>tl", "<cmd>TermSelect<cr>", desc("List Terminals"))
 		vim.keymap.set("n", "<space>tR", rename_current_terminal, desc("Rename Current Term"))
-		vim.keymap.set({ "n", "t" }, "<space>]]", function()
+		vim.keymap.set("n", "<space>]]", function()
 			cycle_terminal(1)
 		end, desc("Next Terminal"))
-		vim.keymap.set({ "n", "t" }, "<space>[[", function()
+		vim.keymap.set("n", "<space>[[", function()
 			cycle_terminal(-1)
 		end, desc("Prev Terminal"))
 		vim.keymap.set("n", "<leader>tk", kill_current_terminal, desc("Kill Current Terminal"))
@@ -360,8 +370,5 @@ return {
 		vim.keymap.set("n", "<leader>tp", function()
 			python:toggle()
 		end, desc("Python REPL"))
-		vim.keymap.set("n", "<leader>td", function()
-			lazydocker:toggle()
-		end, desc("LazyDocker"))
 	end,
 }
