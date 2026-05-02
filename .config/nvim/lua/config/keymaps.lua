@@ -87,4 +87,4 @@ vim.keymap.set("n", "<leader>cd", lsp_utils.copy_diagnostic, { desc = "Copy Diag
 -- vim.keymap.set("n", "gs", lsp_utils.toggle_hover_vertical, { desc = "Toggle Vertical Docs" })
 
 -- System
-map("n", "<leader>qR", "<cmd>restart<cr>", "Quit and Restart Neovim")
+map("n", "<leader>qr", "<cmd>restart<cr>", "Quit and Restart Neovim")
