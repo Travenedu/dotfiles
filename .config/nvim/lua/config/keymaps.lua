@@ -12,8 +12,8 @@ vim.g.mapleader = " "
 map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", "Save File")
 
 -- Line Navigation (Simplified)
-map({ "n", "v" }, "<leader>hh", "^", "Go to start of line")
-map({ "n", "v" }, "<leader>ll", "$", "Go to end of line")
+map({ "n", "v" }, "H", "^", "Go to start of line")
+map({ "n", "v" }, "L", "$", "Go to end of line")
 
 -- Navigation: Keep cursor centered when jumping
 map("n", "<C-d>", "<C-d>zz", "Scroll Down (Centered)")
