@@ -18,6 +18,9 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	{ import = "plugins" },
 }, {
+	defaults = {
+		cond = not vim.g.vscode,
+	},
 	ui = {
 		border = "single",
 		size = {

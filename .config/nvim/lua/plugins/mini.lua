@@ -1,6 +1,7 @@
 return {
   {
     "echasnovski/mini.nvim",
+    vscode = true,
     version = false,
     config = function()
       require("mini.pairs").setup()
