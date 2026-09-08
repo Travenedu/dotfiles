@@ -1,0 +1,60 @@
+{
+  // Constomizations
+  "workbench.activityBar.location": "top",
+  "workbench.editor.showTabs": "single", // questionable
+  // "workbench.statusBar.visible": false, // questionable
+  "workbench.startupEditor": "none",
+  "workbench.tips.enabled": false,
+  "editor.minimap.enabled": false,
+  "breadcrumbs.enabled": false,
+  "explorer.compactFolders": false,
+  "explorer.decorations.badges": false,
+  "editor.fontFamily": "Dank Mono",
+  "editor.fontLigatures": true,
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "comment",
+        "settings": {
+          "fontStyle": "italic"
+        }
+      }
+    ]
+  },
+  "editor.lightbulb.enabled": "off",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "editor.lineNumbers": "relative",
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.showFoldingControls": "never", // questionable
+  "editor.guides.indentation": false,
+  "editor.renderLineHighlight": "none",
+  "editor.occurrencesHighlight": "off",
+  "editor.scrollbar.horizontal": "hidden",
+  "editor.scrollbar.vertical": "hidden",
+  "editor.overviewRulerBorder": false,
+  "editor.hideCursorInOverviewRuler": true,
+  "editor.quickSuggestions": {
+    "other": "off"
+  },
+  "editor.tabCompletion": "on",
+  "editor.snippetSuggestions": "top",
+  "emmet.triggerExpansionOnTab": true,
+  "terminal.integrated.defaultLocation": "editor",
+
+  // Constomizations
+  "python.languageServer": "Default",
+  "files.autoSave": "afterDelay",
+  "workbench.editorAssociations": {
+    "*.pdf": "default"
+  },
+  "files.associations": {
+    ".aerospace.toml": "toml"
+  },
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  },
+  "vscode-neovim.neovimExecutablePaths.darwin": "/opt/homebrew/bin/nvim",
+  "vscode-neovim.neovimInitVimPaths.darwin": "/Users/traven/dotfiles/.config/nvim/init.lua",
+}
